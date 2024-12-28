@@ -1,101 +1,385 @@
-import Image from "next/image";
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
+interface TeamMember {
+  name: string;
+  email: string;
+  contact: string;
+  prn: string;
+  section: string;
+  semester: string;
+}
+
+interface Mentor {
+  _id: string;
+  name: string;
+  assignedTopics: string[];
+}
+
+const MainPage = () => {
+  const router = useRouter();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [prn, setPrn] = useState('');
+  const [email, setEmail] = useState('');
+  const [teamLeader, setTeamLeader] = useState('');
+  const [teamLeaderContact, setTeamLeaderContact] = useState('');
+  const [teamLeaderSection, setTeamLeaderSection] = useState('');
+  const [teamLeaderSemester, setTeamLeaderSemester] = useState('');
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+    { name: '', email: '', contact: '', prn: '', section: '', semester: '' },
+    { name: '', email: '', contact: '', prn: '', section: '', semester: '' },
+
+  ]);
+  const [mentorOptions, setMentorOptions] = useState<Mentor[]>([]);
+  const [mentorOption1, setMentorOption1] = useState('');
+  const [mentorOption2, setMentorOption2] = useState('');
+  const [topicOption1, setTopicOption1] = useState('');
+  const [topicOption2, setTopicOption2] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // To toggle between login and team details
+  const [loading, setLoading] = useState(false);
+  const [availableTopicsForMentor1, setAvailableTopicsForMentor1] = useState<string[]>([]);
+  const [availableTopicsForMentor2, setAvailableTopicsForMentor2] = useState<string[]>([]);
+
+  // Fetch mentors on page load
+  useEffect(() => {
+    const fetchMentors = async () => {
+      try {
+        const response = await fetch('/api/mentors');
+        const mentors = await response.json();
+        if (Array.isArray(mentors)) {
+          setMentorOptions(mentors);
+        } else {
+          setMentorOptions([]);
+        }
+      } catch (error) {
+        console.error('Error fetching mentors:', error);
+        setMentorOptions([]);
+      }
+    };
+    fetchMentors();
+  }, []);
+
+  // Fetch available topics when a mentor is selected
+  useEffect(() => {
+    const fetchAvailableTopics = async (mentorId: string, setAvailableTopics: React.Dispatch<React.SetStateAction<string[]>>) => {
+      try {
+        const response = await fetch(`/api/topics?mentorId=${mentorId}`);
+        const topics = await response.json();
+        if (Array.isArray(topics)) {
+          setAvailableTopics(topics.map((topic: { name: string }) => topic.name));
+        } else {
+          setAvailableTopics([]);
+        }
+      } catch (error) {
+        console.error('Error fetching topics:', error);
+        setAvailableTopics([]);
+      }
+    };
+
+    if (mentorOption1) {
+      fetchAvailableTopics(mentorOption1, setAvailableTopicsForMentor1);
+    }
+    if (mentorOption2) {
+      fetchAvailableTopics(mentorOption2, setAvailableTopicsForMentor2);
+    }
+  }, [mentorOption1, mentorOption2]);
+
+  // Handle login and transition to team details page
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+  
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prn, email }),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+        } else {
+          setErrorMessage('Login failed. Please check your credentials.');
+        }
+      } else {
+        setErrorMessage('Login failed. Please check your credentials.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrorMessage('An unexpected error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  // Handle team details submission
+  // Handle team details submission
+  const handleTeamDetailsSubmit = async () => {
+    setLoading(true); // Show loading spinner when submitting the form
+  
+    try {
+      // Fetch the topic IDs from the server based on the names
+      const response1 = await fetch(`/api/topicId?name=${topicOption1}`);
+      const response2 = await fetch(`/api/topicId?name=${topicOption2}`);
+  
+      if (!response1.ok || !response2.ok) {
+        alert('Error fetching topic IDs. Please try again.');
+        return;
+      }
+  
+      const topic1Data = await response1.json();
+      const topic2Data = await response2.json();
+  
+      const topic1Id = topic1Data?._id || null;
+      const topic2Id = topic2Data?._id || null;
+  
+      if (!topic1Id || !topic2Id) {
+        alert('Error finding topic IDs. Please try again.');
+        return;
+      }
+  
+      const userDetails = {
+        prn,
+        email,
+        teamLeader,
+        teamLeaderContact,
+        teamLeaderSection,
+        teamLeaderSemester,
+        teamMembers,
+        mentorOption1,
+        mentorOption2,
+        topicOption1: topic1Id, // Send _id instead of name
+        topicOption2: topic2Id, // Send _id instead of name
+      };
+  
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userDetails),
+      });
+  
+      if (response.ok) {
+        alert('Team details saved');
+        router.push('/thanks'); // Redirect to home page after successful submission
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Error saving details');
+      }
+    } catch (error) {
+      console.error('Error in handleTeamDetailsSubmit:', error);
+      alert('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false); // Hide loading spinner after submission
+    }
+  };
+  
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="container">
+      {!isLoggedIn ? (
+        <div className="form-container">
+          <h1>LOGIN<p> Strictly use only team leader email and prn to login.</p></h1>
+          <form onSubmit={handleLogin}>
+            <div className="input-group">
+              <input
+                type="text"
+                placeholder="PRN"
+                value={prn}
+                onChange={(e) => setPrn(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            {errorMessage && (
+  <div className="error-message" style={{ color: 'red' }}>
+    {errorMessage}
+  </div>
+)}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div className="input-group">
+              <button type="submit" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
+            </div>
+          </form>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      ) : (
+        <div className="form-container">
+          <h1>Team Details</h1>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Team Leader Name"
+              value={teamLeader}
+              onChange={(e) => setTeamLeader(e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Team Leader Contact No"
+              value={teamLeaderContact}
+              onChange={(e) => setTeamLeaderContact(e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Team Leader Section,A,B,C,D,E"
+              value={teamLeaderSection}
+              onChange={(e) => setTeamLeaderSection(e.target.value)}
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Team Leader Semester 1,2,3,4,5,6,7"
+              value={teamLeaderSemester}
+              onChange={(e) => setTeamLeaderSemester(e.target.value)}
+            />
+          </div>
+          {teamMembers.map((member, index) => (
+            <div key={index} className="team-member-form">
+              <h3>Team Member {index + 1}</h3>
+              <input
+                type="text"
+                placeholder="Name"
+                value={member.name}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].name = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={member.email}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].email = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Contact No"
+                value={member.contact}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].contact = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+              <input
+                type="text"
+                placeholder="PRN"
+                value={member.prn}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].prn = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Section,A,B,C,D,E"
+                value={member.section}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].section = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Semester,1,2,3,4,5,6,7"
+                value={member.semester}
+                onChange={(e) => {
+                  const newMembers = [...teamMembers];
+                  newMembers[index].semester = e.target.value;
+                  setTeamMembers(newMembers);
+                }}
+              />
+            </div>
+          ))}
+          <div className="input-group">
+            <select
+              value={mentorOption1}
+              onChange={(e) => setMentorOption1(e.target.value)}
+            >
+              <option value="">Select Mentor Priority 1</option>
+              {mentorOptions.map((mentor) => (
+                <option key={mentor._id} value={mentor._id}>
+                  {mentor.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-group">
+            <select
+              value={mentorOption2}
+              onChange={(e) => setMentorOption2(e.target.value)}
+            >
+              <option value="">Select Mentor Priority 2</option>
+              {mentorOptions
+                .filter((mentor) => mentor._id !== mentorOption1) // Filter out the selected mentor from option 1
+                .map((mentor) => (
+                  <option key={mentor._id} value={mentor._id}>
+                    {mentor.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          {mentorOption1 && (
+            <div className="input-group">
+              <select
+                value={topicOption1}
+                onChange={(e) => setTopicOption1(e.target.value)}
+              >
+                <option value="">Select Topic for Mentor Priority 1</option>
+                {availableTopicsForMentor1.map((topic, index) => (
+                  <option key={index} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {mentorOption2 && (
+            <div className="input-group">
+              <select
+                value={topicOption2}
+                onChange={(e) => setTopicOption2(e.target.value)}
+              >
+                <option value="">Select Topic for Mentor Priority 2</option>
+                {availableTopicsForMentor2.map((topic, index) => (
+                  <option key={index} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="input-group">
+            <button onClick={handleTeamDetailsSubmit}>Submit Team</button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+export default MainPage;
