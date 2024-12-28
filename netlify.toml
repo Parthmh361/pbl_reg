@@ -1,5 +1,10 @@
 [build]
   command = "npm run build"
-  publish = "out"
+  publish = ".next"  # Change to .next for Next.js apps with SSR or dynamic routing
   functions = "netlify/functions"
-  base = "/"
+
+[[redirects]]
+  from = "/old-url"
+  to = "/new-url"
+  status = 301
+  force = true
