@@ -25,7 +25,6 @@ export async function POST(req: Request) {
       topicOption2 
     } = body;
 
-    // Ensure teamMembers is typed correctly
     const prnsToCheck: string[] = [prn, ...teamMembers.map((member: TeamMember) => member.prn)];
 
     // Check if any of the PRNs already exist in the User database
@@ -34,10 +33,23 @@ export async function POST(req: Request) {
     });
 
     if (existingUsers.length > 0) {
-      // Find out which PRNs are already taken and return an error message
       const takenPrns = existingUsers.map(user => user.prn);
       return NextResponse.json(
         { message: `The following PRNs are already in use: ${takenPrns.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // Fetch topics based on topicOption1 and topicOption2
+    const topics = await Topic.find({
+      _id: { $in: [topicOption1, topicOption2].filter(Boolean) }
+    }).select('name isTaken');
+
+    const takenTopics = topics.filter(topic => topic.isTaken);
+    if (takenTopics.length > 0) {
+      const takenTopicNames = takenTopics.map(topic => topic.name);
+      return NextResponse.json(
+        { message: `The following topics are already taken: ${takenTopicNames.join(', ')}` },
         { status: 400 }
       );
     }
@@ -49,38 +61,14 @@ export async function POST(req: Request) {
 
     const mentorNames = mentors.map((mentor) => mentor.name);
 
-    // Fetch topics based on topicOption1 and topicOption2 to check availability
-    const topics = await Topic.find({
-      _id: { $in: [topicOption1, topicOption2].filter(Boolean) }
-    }).select('name isTaken');
-
-    const topicNames = topics.map((topic) => {
-      if (topic.isTaken) {
-        return { name: topic.name, isTaken: true };
-      }
-      return { name: topic.name, isTaken: false };
-    });
-
-    // Check if any topic is already taken (isTaken === true)
-    const takenTopics = topicNames.filter((topic) => topic.isTaken);
-
-    if (takenTopics.length > 0) {
-      const takenTopicNames = takenTopics.map((topic) => topic.name);
-      return NextResponse.json(
-        { message: `The following topics are already taken: ${takenTopicNames.join(', ')}` },
-        { status: 400 }
-      );
-    }
-
-    // Update topics to mark them as taken if they are available
-    if (topicOption1 && topicNames[0].isTaken === false) {
+    // Mark topics as taken
+    if (topicOption1) {
       await Topic.findOneAndUpdate(
         { _id: topicOption1 }, 
         { isTaken: true }
       );
     }
-
-    if (topicOption2 && topicNames[1].isTaken === false) {
+    if (topicOption2) {
       await Topic.findOneAndUpdate(
         { _id: topicOption2 }, 
         { isTaken: true }
@@ -95,8 +83,8 @@ export async function POST(req: Request) {
       teamMembers,
       mentorOption1: mentorNames[0] || null,
       mentorOption2: mentorNames[1] || null,
-      topicOption1: topicNames[0].name || null,
-      topicOption2: topicNames[1].name || null,
+      topicOption1: topics[0]?.name || null,
+      topicOption2: topics[1]?.name || null,
     });
 
     await newUser.save();
