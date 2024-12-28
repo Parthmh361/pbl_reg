@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const createdMentors = [];
 
     // Loop through each mentor in the input array and create them along with topics
-    for (let mentorData of mentorsData) {
+    for (const mentorData of mentorsData) {
       const { name, assignedTopics } = mentorData;
 
       // Validate each mentor's data

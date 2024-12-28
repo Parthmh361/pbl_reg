@@ -13,7 +13,7 @@ const MentorSchema: Schema<IMentor> = new Schema({
 
 MentorSchema.post('save', async function (this: IMentor) {
   try {
-    for (let topicName of this.assignedTopics) {
+    for (const topicName of this.assignedTopics) {
       await mongoose.model('Topic').create({
         name: topicName,
         mentorId: this._id, // Reference to the mentor

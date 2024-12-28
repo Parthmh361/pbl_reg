@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import mongoose from 'mongoose';
 import LoginUser from '../../model/LoginUser'; // Adjust the import path based on your folder structure
 import dbConnect from '@/app/lib/dbConnect';
 

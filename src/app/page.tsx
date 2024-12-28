@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+
 
 interface TeamMember {
   name: string;
@@ -18,7 +18,7 @@ interface Mentor {
 }
 
 const MainPage = () => {
-  const router = useRouter();
+
   const [errorMessage, setErrorMessage] = useState('');
   const [prn, setPrn] = useState('');
   const [email, setEmail] = useState('');
@@ -98,7 +98,7 @@ const MainPage = () => {
       });
   
       if (response.ok) {
-        const data = await response.json();
+        // const data = await response.json();
         if (response.status === 200) {
           setIsLoggedIn(true);
         } else {
@@ -164,7 +164,8 @@ const MainPage = () => {
   
       if (response.ok) {
         alert('Team details saved');
-        router.push('/thanks'); // Redirect to home page after successful submission
+        window.location.href = '/thank';
+ // Redirect to home page after successful submission
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Error saving details');
