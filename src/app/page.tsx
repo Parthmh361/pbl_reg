@@ -181,205 +181,237 @@ const MainPage = () => {
 
   return (
     <div className="container">
-      {!isLoggedIn ? (
-        <div className="form-container">
-          <h1>LOGIN<p> Strictly use only team leader email and prn to login.</p></h1>
-          <form onSubmit={handleLogin}>
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="PRN"
-                value={prn}
-                onChange={(e) => setPrn(e.target.value)}
-                required
-              />
-            </div>
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            {errorMessage && (
-  <div className="error-message" style={{ color: 'red' }}>
-    {errorMessage}
-  </div>
-)}
-
-            <div className="input-group">
-              <button type="submit" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-            </div>
-          </form>
+  {!isLoggedIn ? (
+    <div className="form-container">
+      <h1>
+        LOGIN
+        <p>Strictly use only team leader email and PRN to login.</p>
+      </h1>
+      <form onSubmit={handleLogin}>
+        <div className="input-group">
+          <input
+            type="text"
+            placeholder="PRN"
+            value={prn}
+            onChange={(e) => setPrn(e.target.value)}
+            required
+          />
         </div>
-      ) : (
-        <div className="form-container">
-          <h1>Team Details</h1>
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Team Leader Name"
-              value={teamLeader}
-              onChange={(e) => setTeamLeader(e.target.value)}
-            />
+        <div className="input-group">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        {errorMessage && (
+          <div className="error-message" style={{ color: 'red' }}>
+            {errorMessage}
           </div>
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Team Leader Contact No"
-              value={teamLeaderContact}
-              onChange={(e) => setTeamLeaderContact(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Team Leader Section,A,B,C,D,E"
-              value={teamLeaderSection}
-              onChange={(e) => setTeamLeaderSection(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <input
-              type="text"
-              placeholder="Team Leader Semester 1,2,3,4,5,6,7"
-              value={teamLeaderSemester}
-              onChange={(e) => setTeamLeaderSemester(e.target.value)}
-            />
-          </div>
-          {teamMembers.map((member, index) => (
-            <div key={index} className="team-member-form">
-              <h3>Team Member {index + 1}</h3>
-              <input
-                type="text"
-                placeholder="Name"
-                value={member.name}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].name = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={member.email}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].email = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Contact No"
-                value={member.contact}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].contact = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-              <input
-                type="text"
-                placeholder="PRN"
-                value={member.prn}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].prn = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Section,A,B,C,D,E"
-                value={member.section}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].section = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Semester,1,2,3,4,5,6,7"
-                value={member.semester}
-                onChange={(e) => {
-                  const newMembers = [...teamMembers];
-                  newMembers[index].semester = e.target.value;
-                  setTeamMembers(newMembers);
-                }}
-              />
-            </div>
-          ))}
-          <div className="input-group">
+        )}
+        <div className="input-group">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </div>
+      </form>
+    </div>
+  ) : (
+    <div className="form-container">
+      <h1>Team Details</h1>
+      <div className="input-group">
+        <input
+          type="text"
+          placeholder="Team Leader Name"
+          value={teamLeader}
+          onChange={(e) => setTeamLeader(e.target.value)}
+        />
+      </div>
+      <div className="input-group">
+        <input
+          type="text"
+          placeholder="Team Leader Contact No"
+          value={teamLeaderContact}
+          onChange={(e) => setTeamLeaderContact(e.target.value)}
+        />
+      </div>
+      <div className="input-group">
+        <select
+          value={teamLeaderSection}
+          onChange={(e) => setTeamLeaderSection(e.target.value)}
+        >
+          <option value="">Select Section</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+        </select>
+      </div>
+      <div className="input-group">
+        <select
+          value={teamLeaderSemester}
+          onChange={(e) => setTeamLeaderSemester(e.target.value)}
+        >
+          <option value="">Select Semester</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+      {teamMembers.map((member, index) => (
+        <div key={index} className="team-member-form">
+          <h3>Team Member {index + 1}</h3>
+          <input
+            type="text"
+            placeholder="Name"
+            value={member.name}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].name = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={member.email}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].email = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Contact No"
+            value={member.contact}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].contact = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          />
+          <input
+            type="text"
+            placeholder="PRN"
+            value={member.prn}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].prn = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          />
+          <select
+            value={member.section}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].section = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          >
+            <option value="">Select Section</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+          <select
+            value={member.semester}
+            onChange={(e) => {
+              const newMembers = [...teamMembers];
+              newMembers[index].semester = e.target.value;
+              setTeamMembers(newMembers);
+            }}
+          >
+            <option value="">Select Semester</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+          </select>
+        </div>
+      ))}
+
+      {/* Choose Your Mentor Section */}
+      <div className="mentor-section">
+        <h2 className="mentor-heading">Choose Your Mentor</h2>
+        <div className="faculty-preference">
+          <h3>Faculty Preference 1</h3>
+          <select
+            value={mentorOption1}
+            onChange={(e) => setMentorOption1(e.target.value)}
+          >
+            <option value="">Select Mentor Priority 1</option>
+            {mentorOptions.map((mentor) => (
+              <option key={mentor._id} value={mentor._id}>
+                {mentor.name}
+              </option>
+            ))}
+          </select>
+          {mentorOption1 && (
             <select
-              value={mentorOption1}
-              onChange={(e) => setMentorOption1(e.target.value)}
+              value={topicOption1}
+              onChange={(e) => setTopicOption1(e.target.value)}
             >
-              <option value="">Select Mentor Priority 1</option>
-              {mentorOptions.map((mentor) => (
+              <option value="">Select Topic for Faculty Preference 1</option>
+              {availableTopicsForMentor1.map((topic, index) => (
+                <option key={index} value={topic}>
+                  {topic}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        <div className="faculty-preference">
+          <h3>Faculty Preference 2</h3>
+          <select
+            value={mentorOption2}
+            onChange={(e) => setMentorOption2(e.target.value)}
+          >
+            <option value="">Select Faculty Preference 1</option>
+            {mentorOptions
+              .filter((mentor) => mentor._id !== mentorOption1)
+              .map((mentor) => (
                 <option key={mentor._id} value={mentor._id}>
                   {mentor.name}
                 </option>
               ))}
-            </select>
-          </div>
-          <div className="input-group">
-            <select
-              value={mentorOption2}
-              onChange={(e) => setMentorOption2(e.target.value)}
-            >
-              <option value="">Select Mentor Priority 2</option>
-              {mentorOptions
-                .filter((mentor) => mentor._id !== mentorOption1) // Filter out the selected mentor from option 1
-                .map((mentor) => (
-                  <option key={mentor._id} value={mentor._id}>
-                    {mentor.name}
-                  </option>
-                ))}
-            </select>
-          </div>
-          {mentorOption1 && (
-            <div className="input-group">
-              <select
-                value={topicOption1}
-                onChange={(e) => setTopicOption1(e.target.value)}
-              >
-                <option value="">Select Topic for Mentor Priority 1</option>
-                {availableTopicsForMentor1.map((topic, index) => (
-                  <option key={index} value={topic}>
-                    {topic}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          </select>
           {mentorOption2 && (
-            <div className="input-group">
-              <select
-                value={topicOption2}
-                onChange={(e) => setTopicOption2(e.target.value)}
-              >
-                <option value="">Select Topic for Mentor Priority 2</option>
-                {availableTopicsForMentor2.map((topic, index) => (
-                  <option key={index} value={topic}>
-                    {topic}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={topicOption2}
+              onChange={(e) => setTopicOption2(e.target.value)}
+            >
+              <option value="">Select Topic for Faculty Preference 2</option>
+              {availableTopicsForMentor2.map((topic, index) => (
+                <option key={index} value={topic}>
+                  {topic}
+                </option>
+              ))}
+            </select>
           )}
-          <div className="input-group">
-            <button onClick={handleTeamDetailsSubmit}>Submit Team</button>
-          </div>
         </div>
-      )}
+      </div>
+
+      <div className="input-group">
+        <button onClick={handleTeamDetailsSubmit}>Submit Team</button>
+      </div>
     </div>
+  )}
+</div>
+
   );
 };
 
