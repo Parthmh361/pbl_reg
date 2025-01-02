@@ -40,3 +40,52 @@
 .footer .text-xs {
   font-size: 0.75rem;
 }
+.headin {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Professional, modern font */
+  font-size: 2.5rem; /* Adjusted size for a more balanced look */
+  font-weight: 600; /* Medium bold weight */
+  color: #2C3E50; /* Dark, professional color */
+  text-align: center; /* Center aligned */
+  text-transform: uppercase; /* Capitalized text for emphasis */
+  letter-spacing: 2px; /* Slight spacing between letters */
+  margin: 0px; /* Remove default margin */
+  padding: 20px 10px; /* Top and bottom padding for spacing */
+  background-color: #ECF0F1; /* Light background color for contrast */
+  border-radius: 8px; /* Rounded corners for a softer look */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  height: 20vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Responsive font size */
+@media (max-width: 768px) {
+  .headin{
+    font-size: 2rem; /* Smaller font on smaller screens */
+  }
+}
+
+/* Adding a subtle underline effect */
+.headin::after {
+  content: '';
+  display: block;
+  width: 60%;
+  height: 2px;
+  margin: 10px auto;
+  background-color: #318CE7; /* Blue underline */
+  border-radius: 1px;
+}
+
+/* Keyframe animation for bounce effect */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px); /* Bounce up */
+  }
+}
+.cccc{
+  color: #318CE7;
+}

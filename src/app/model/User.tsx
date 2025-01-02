@@ -3,7 +3,14 @@ import mongoose, { Schema, Document } from 'mongoose';
 interface IUser extends Document {
   prn: string;
   email: string;
-  teamLeader: string;
+  teamLeader: {
+    name: string;
+    prn: string;
+    semester: string;
+    section: string;
+    contact: string;
+    email: string;
+  };
   teamMembers: Array<{
     name: string;
     prn: string;
@@ -21,7 +28,14 @@ interface IUser extends Document {
 const UserSchema: Schema<IUser> = new Schema({
   prn: { type: String, required: true, unique: true },
   email: { type: String, required: true },
-  teamLeader: { type: String, required: true },
+  teamLeader: {
+    name: { type: String, required: true },
+    prn: { type: String, required: true },
+    semester: { type: String, required: true },
+    section: { type: String, required: true },
+    contact: { type: String, required: true },
+    email: { type: String, required: true },
+  },
   teamMembers: [
     {
       name: { type: String, default: null },

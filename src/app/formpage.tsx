@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import './footer.css'
+import './footer.css';
+
 interface TeamMember {
   name: string;
   email: string;
@@ -33,7 +34,7 @@ const MainPage = () => {
   const [mentorOption2, setMentorOption2] = useState('');
   const [topicOption1, setTopicOption1] = useState('');
   const [topicOption2, setTopicOption2] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(false);
   const [availableTopicsForMentor1, setAvailableTopicsForMentor1] = useState<string[]>([]);
   const [availableTopicsForMentor2, setAvailableTopicsForMentor2] = useState<string[]>([]);
@@ -45,7 +46,7 @@ const MainPage = () => {
     const fetchMentors = async () => {
       setLoadingMentors(true);
       try {
-        const response = await fetch('/api/mentors');
+        const response = await fetch('/api/mentors12');
         const mentors = await response.json();
         if (Array.isArray(mentors)) {
           setMentorOptions(mentors);
@@ -63,18 +64,21 @@ const MainPage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchAvailableTopics = async (mentorId: string, setAvailableTopics: React.Dispatch<React.SetStateAction<string[]>>, setLoadingTopics: React.Dispatch<React.SetStateAction<boolean>>) => {
+    const fetchAvailableTopics = async (
+      mentorId: string, 
+      type: '1' | '2', 
+      setAvailableTopics: React.Dispatch<React.SetStateAction<string[]>>, 
+      setLoadingTopics: React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
       setLoadingTopics(true);
       try {
-        // Add a condition to prevent duplicate API calls for the same mentor
-        if (mentorId === mentorOption1 || mentorId === mentorOption2) {
-          const response = await fetch(`/api/topics?mentorId=${mentorId}`);
-          const topics = await response.json();
-          if (Array.isArray(topics)) {
-            setAvailableTopics(topics.map((topic: { name: string }) => topic.name));
-          } else {
-            setAvailableTopics([]);
-          }
+        // Fetch topics based on mentor ID and type
+        const response = await fetch(`/api/topics12?mentorId=${mentorId}&type=${type}`);
+        const topics = await response.json();
+        if (Array.isArray(topics)) {
+          setAvailableTopics(topics.map((topic: { name: string }) => topic.name));
+        } else {
+          setAvailableTopics([]);
         }
       } catch (error) {
         console.error('Error fetching topics:', error);
@@ -84,14 +88,16 @@ const MainPage = () => {
       }
     };
   
+    // Fetch topics for mentorOption1 (Topic1)
     if (mentorOption1) {
-      fetchAvailableTopics(mentorOption1, setAvailableTopicsForMentor1, setLoadingTopics1);
+      fetchAvailableTopics(mentorOption1, '1', setAvailableTopicsForMentor1, setLoadingTopics1); // Type 1 for Topic1
     }
+  
+    // Fetch topics for mentorOption2 (Topic2)
     if (mentorOption2) {
-      fetchAvailableTopics(mentorOption2, setAvailableTopicsForMentor2, setLoadingTopics2);
+      fetchAvailableTopics(mentorOption2, '2', setAvailableTopicsForMentor2, setLoadingTopics2); // Type 2 for Topic2
     }
   }, [mentorOption1, mentorOption2]);
-  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,52 +125,69 @@ const MainPage = () => {
     }
   };
   
-
   const handleTeamDetailsSubmit = async () => {
     setLoading(true);
-
+  
     try {
-      const response1 = await fetch(`/api/topicId?name=${topicOption1}`);
-      const response2 = await fetch(`/api/topicId?name=${topicOption2}`);
-
-      if (!response1.ok || !response2.ok) {
-        alert('Error fetching topic IDs. Please try again.');
+      // Fetch topic ID for Topic1
+      const response1 = await fetch(`/api/topicId12?name=${topicOption1}&type=1`);
+      if (!response1.ok) {
+        alert('Error fetching Topic1 ID. Please try again.');
         return;
       }
-
       const topic1Data = await response1.json();
-      const topic2Data = await response2.json();
-
       const topic1Id = topic1Data?._id || null;
-      const topic2Id = topic2Data?._id || null;
-
-      if (!topic1Id || !topic2Id) {
-        alert('Error finding topic IDs. Please try again.');
+  
+      if (!topic1Id) {
+        alert('Error finding Topic1 ID. Please ensure Topic1 is selected.');
         return;
       }
-
+  
+      let topic2Id = null;
+      if (topicOption2) {
+        // Fetch topic ID for Topic2
+        const response2 = await fetch(`/api/topicId12?name=${topicOption2}&type=2`);
+        if (!response2.ok) {
+          alert('Error fetching Topic2 ID. Please try again.');
+          return;
+        }
+        const topic2Data = await response2.json();
+        topic2Id = topic2Data?._id || null;
+  
+        if (!topic2Id) {
+          alert('Error finding Topic2 ID. Please check the Topic2 name.');
+          return;
+        }
+      }
+  
+      // Prepare user details
       const userDetails = {
         prn,
         email,
-        teamLeader,
-        teamLeaderContact,
-        teamLeaderSection,
-        teamLeaderSemester,
+        teamLeader: {
+          name: teamLeader,
+          prn,
+          semester: teamLeaderSemester,
+          section: teamLeaderSection,
+          contact: teamLeaderContact,
+          email,
+        },
         teamMembers,
         mentorOption1,
-        mentorOption2,
+        mentorOption2: mentorOption2 || null,
         topicOption1: topic1Id,
-        topicOption2: topic2Id,
+        topicOption2: topic2Id || null,
       };
-
-      const response = await fetch('/api/register', {
+  
+      // Submit the user details
+      const response = await fetch('/api/register12', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userDetails),
       });
-
+  
       if (response.ok) {
-        alert('Team details saved');
+        alert('Team details saved successfully.');
         window.location.href = '/thank';
       } else {
         const errorData = await response.json();
@@ -177,15 +200,17 @@ const MainPage = () => {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="container">
       {!isLoggedIn ? (
       <div className="container">
+        <h1 className='headin'>PROJECT BASED LEARNING</h1>
       <div className="form-container">
+  
         <h1 className="login-heading">
           LOGIN
-          <p>Strictly use only team leader email and PRN to login.</p>
+          <p>Strictly use only Team leader's official email and PRN to login.</p>
         </h1>
         <form onSubmit={handleLogin}>
           <div className="input-group">
@@ -226,7 +251,7 @@ const MainPage = () => {
             href="https://www.linkedin.com/in/parth-choudhari-2073a0294"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-blue-500 hover:underline"
+            className='cccc'
           >
             Parth Prashant Choudhari
           </a>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
@@ -371,7 +396,7 @@ const MainPage = () => {
           {/* Choose Your Mentor Section */}
           <div className="mentor-section">
             <h2 className="mentor-heading">Choose Your Mentor</h2>
-
+            <h4> (If topics of a particular mentor are not visible it means that all the topics of that mentors got booked)</h4>
             {/* Faculty Preference 1 */}
             <div className="faculty-preference">
               <h3>Faculty Preference 1</h3>
@@ -463,7 +488,7 @@ const MainPage = () => {
             href="https://www.linkedin.com/in/parth-choudhari-2073a0294"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-blue-500 hover:underline"
+            className='cccc'
           >
             Parth Prashant Choudhari
           </a>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
