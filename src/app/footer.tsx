@@ -1,15 +1,9 @@
-"use client"; // Ensure the component is rendered client-side
+import React from "react";
 
-const ThanksPage = () => {
-  
-
+const Footer: React.FC = () => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-semibold text-blue-600">Thank you for registering!</h1>
-      <p className="mt-4 text-lg text-gray-800">
-        Your registration has been successfully submitted. 
-      </p>
-      <div className="text-center">
+    <footer className="bg-gray-800 text-white py-4">
+      <div className="container mx-auto px-4 text-center">
         <p className="text-sm">
           Design and Developed by <span className="font-semibold">Parth Prashant Choudhari</span>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
         </p>
@@ -20,9 +14,8 @@ const ThanksPage = () => {
           © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
         </div>
       </div>
-    </div>
-    
+    </footer>
   );
 };
 
-export default ThanksPage;
+export default Footer;

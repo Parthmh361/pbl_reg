@@ -15,10 +15,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'mentorId query parameter is required' }, { status: 400 });
     }
 
-    // Fetch topics that are not taken and ensure unique topic names
-    const topics = await Topic.find({ mentorId, isTaken: false }).distinct('name');
+    // Fetch topics that are not taken
+    const topics = await Topic.find({ mentorId, isTaken: false });
 
-    return NextResponse.json(topics, { status: 200 });
+    // Filter out duplicate topics based on the 'name' field
+    const uniqueTopics = topics.filter((value, index, self) =>
+      index === self.findIndex((t) => t.name === value.name)
+    );
+
+    return NextResponse.json(uniqueTopics, { status: 200 });
   } catch (error) {
     console.error('Error fetching topics:', error);
     return NextResponse.json({ error: 'Failed to fetch topics' }, { status: 500 });

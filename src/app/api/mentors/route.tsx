@@ -3,11 +3,29 @@ import dbConnect from '@/app/lib/dbConnect';
 import Mentor from '@/app/model/Mentor';
 import Topic from '@/app/model/Topic';
 
-// Create multiple mentors and automatically create topics (POST route)
+/**
+ * @desc Fetch all mentors (GET route)
+ * @route GET /api/mentors
+ */
+export async function GET() {
+  try {
+    await dbConnect();
+    const mentors = await Mentor.find({});
+    return NextResponse.json(mentors, { status: 200 });
+  } catch (error) {
+    console.error('Error fetching mentors:', error);
+    return NextResponse.json({ message: 'Error fetching mentors', error }, { status: 500 });
+  }
+}
+
+/**
+ * @desc Create multiple mentors and automatically create topics (POST route)
+ * @route POST /api/mentors
+ */
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();
-    
+
     // Extract data from the request body
     const mentorsData = await req.json();
 

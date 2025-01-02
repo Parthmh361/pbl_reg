@@ -1,11 +1,54 @@
 import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer'; // Import nodemailer
 import dbConnect from '@/app/lib/dbConnect';
 import User from '@/app/model/User';
 import Topic from '@/app/model/Topic';
 import Mentor from '@/app/model/Mentor';
 import mongoose from 'mongoose';
+
 interface TeamMember {
+  email: string;
+  name: string;
   prn: string;
+}
+
+async function sendEmail(recipients: string[], teamDetails: string, facultyName: string) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'pblsit123@gmail.com', 
+      pass: 'dsbi jmie rhmx umhk', // Use environment variables for production
+    },
+  });
+
+  const mailOptions = {
+    from: 'innovation@sitnagpur.siu.edu.in',
+    to: recipients.join(', '), // Ensure all recipients are included
+    subject: 'PBL Registration Successful',
+    text: `
+      Dear Students,
+
+      You have successfully registered for PBL under ${facultyName}.
+
+      Team Details:
+      ${teamDetails}
+
+      Kindly contact your PBL Mentor immediately and start working on Project-Based Learning.
+
+      Happy Learning.
+
+      Regards,
+      Dr. Sudhanshu Maurya
+      PBL Coordinator
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 }
 
 export async function POST(req: Request) {
@@ -41,7 +84,7 @@ export async function POST(req: Request) {
     // Check if PRNs already exist
     const existingUsers = await User.find({
       prn: { $in: prnsToCheck }
-    });
+    }).session(session);
 
     if (existingUsers.length > 0) {
       const takenPrns = existingUsers.map(user => user.prn);
@@ -50,7 +93,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { 
           message: 'Some PRNs are already registered. Please check and use unique PRNs.',
-          details: `Taken PRNs: ${takenPrns.join(', ')}`
+          details: `Taken PRNs: ${takenPrns.join(', ')}` 
         },
         { status: 400 }
       );
@@ -59,7 +102,7 @@ export async function POST(req: Request) {
     // Check topic availability
     const topics = await Topic.find({
       _id: { $in: [topicOption1, topicOption2].filter(Boolean) }
-    }).select('name isTaken');
+    }).session(session).select('name isTaken');
 
     const takenTopics = topics.filter(topic => topic.isTaken);
     if (takenTopics.length > 0) {
@@ -69,16 +112,16 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { 
           message: 'Selected topics are no longer available. Please choose different topics.',
-          details: `Taken Topics: ${takenTopicNames.join(', ')}`
+          details: `Taken Topics: ${takenTopicNames.join(', ')}` 
         },
         { status: 400 }
       );
     }
 
-    // Fetch mentor names based on mentorOption1 and mentorOption2
+    // Fetch mentor names
     const mentors = await Mentor.find({
       _id: { $in: [mentorOption1, mentorOption2].filter(Boolean) }
-    }).select('name');
+    }).session(session).select('name');
 
     if (mentors.length === 0) {
       await session.abortTransaction();
@@ -124,6 +167,18 @@ export async function POST(req: Request) {
     await session.commitTransaction();
     session.endSession();
 
+    // Prepare email details with team member names
+    const teamDetails = [
+      `Team Leader: ${teamLeader}`,
+      ...teamMembers.map((member: TeamMember, index: number) => 
+        `Member ${index + 1}: ${member.name} (${member.prn})`  // Include both name and PRN
+      ),
+    ].join('\n');
+
+    // Send email to team members and leader
+    const allEmails = [email, ...teamMembers.map((member: TeamMember) => member.email)];
+    await sendEmail(allEmails, teamDetails, mentors[0]?.name || 'Faculty');
+
     return NextResponse.json(
       { message: 'Team details successfully saved! You can now proceed.' },
       { status: 201 }
@@ -141,8 +196,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
-
-export function OPTIONS() {
-  return NextResponse.json({}, { status: 200 });
 }
