@@ -1,5 +1,4 @@
 "use client";
-import Footer from './footer';
 import MainPage from './formpage';
 
 
