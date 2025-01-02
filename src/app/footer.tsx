@@ -1,20 +1,26 @@
 import React from "react";
+import './footer.css'; // Import the CSS file
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-800 text-white py-4">
-      <div className="container mx-auto px-4 text-center">
-        <p className="text-sm">
-          Design and Developed by <span className="font-semibold">Parth Prashant Choudhari</span>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
-        </p>
-        <p className="text-sm mt-1">
-          Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
-        </p>
-        <div className="mt-2 text-gray-400 text-xs">
-          © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
-        </div>
+    <div className="footer">
+      <p className="text-sm">
+        Design and Developed by  <a
+          href="https://www.linkedin.com/in/parth-choudhari-2073a0294"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-blue-500 hover:underline"
+        >
+          Parth Prashant Choudhari
+        </a>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
+      </p>
+      <p className="text-sm">
+        Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
+      </p>
+      <div className="text-xs mt-2">
+        © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
       </div>
-    </footer>
+    </div>
   );
 };
 

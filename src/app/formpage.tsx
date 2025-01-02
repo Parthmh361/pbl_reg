@@ -215,17 +215,7 @@ const MainPage = () => {
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </div>
-            <div className="text-center">
-        <p className="text-sm">
-          Design and Developed by <span className="font-semibold">Parth Prashant Choudhari</span>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
-        </p>
-        <p className="text-sm mt-1">
-          Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
-        </p>
-        <div className="mt-2 text-gray-400 text-xs">
-          © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
-        </div>
-      </div>
+          
           </form>
         </div>
       ) : (
@@ -440,17 +430,7 @@ const MainPage = () => {
               {loading ? 'Submitting...' : 'Submit Team'}
             </button>
           </div>
-          <div className="text-center">
-        <p className="text-sm">
-          Design and Developed by <span className="font-semibold">Parth Prashant Choudhari</span>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
-        </p>
-        <p className="text-sm mt-1">
-          Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
-        </p>
-        <div className="mt-2 text-gray-400 text-xs">
-          © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
-        </div>
-      </div>
+          
         </div>
         
       )}
