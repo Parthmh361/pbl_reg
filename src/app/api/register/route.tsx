@@ -7,12 +7,11 @@ import mongoose from 'mongoose';
 
 interface TeamMember {
   prn: string;
-  // Add other member properties if necessary
 }
 
 export async function POST(req: Request) {
-  const session = await mongoose.startSession(); // Start a session for transaction
-  session.startTransaction(); // Start the transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
     await dbConnect();
@@ -29,24 +28,36 @@ export async function POST(req: Request) {
       topicOption2 
     } = body;
 
+    if (!prn || !email || !teamLeader || !mentorOption1 || !topicOption1) {
+      await session.abortTransaction();
+      session.endSession();
+      return NextResponse.json(
+        { message: 'All mandatory fields (PRN, Email, Team Leader, Mentor 1, Topic 1) must be filled.' },
+        { status: 400 }
+      );
+    }
+
     const prnsToCheck: string[] = [prn, ...teamMembers.map((member: TeamMember) => member.prn)];
 
-    // Check if any of the PRNs already exist
+    // Check if PRNs already exist
     const existingUsers = await User.find({
       prn: { $in: prnsToCheck }
     }).session(session);
 
     if (existingUsers.length > 0) {
       const takenPrns = existingUsers.map(user => user.prn);
-      await session.abortTransaction(); // Abort transaction if validation fails
+      await session.abortTransaction();
       session.endSession();
       return NextResponse.json(
-        { message: `The following PRNs are already in use: ${takenPrns.join(', ')}` },
+        { 
+          message: 'Some PRNs are already registered. Please check and use unique PRNs.',
+          details: `Taken PRNs: ${takenPrns.join(', ')}`
+        },
         { status: 400 }
       );
     }
 
-    // Fetch topics and check availability
+    // Check topic availability
     const topics = await Topic.find({
       _id: { $in: [topicOption1, topicOption2].filter(Boolean) }
     }).session(session).select('name isTaken');
@@ -54,10 +65,13 @@ export async function POST(req: Request) {
     const takenTopics = topics.filter(topic => topic.isTaken);
     if (takenTopics.length > 0) {
       const takenTopicNames = takenTopics.map(topic => topic.name);
-      await session.abortTransaction(); // Abort transaction if validation fails
+      await session.abortTransaction();
       session.endSession();
       return NextResponse.json(
-        { message: `The following topics are already taken: ${takenTopicNames.join(', ')}` },
+        { 
+          message: 'Selected topics are no longer available. Please choose different topics.',
+          details: `Taken Topics: ${takenTopicNames.join(', ')}`
+        },
         { status: 400 }
       );
     }
@@ -67,9 +81,18 @@ export async function POST(req: Request) {
       _id: { $in: [mentorOption1, mentorOption2].filter(Boolean) }
     }).session(session).select('name');
 
+    if (mentors.length === 0) {
+      await session.abortTransaction();
+      session.endSession();
+      return NextResponse.json(
+        { message: 'Selected mentors are not available. Please refresh and try again.' },
+        { status: 400 }
+      );
+    }
+
     const mentorNames = mentors.map((mentor) => mentor.name);
 
-    // Create user first
+    // Create new user
     const newUser = new User({
       prn,
       email,
@@ -81,9 +104,9 @@ export async function POST(req: Request) {
       topicOption2: topics[1]?.name || null,
     });
 
-    await newUser.save({ session }); // Save user within the session
+    await newUser.save({ session });
 
-    // Mark topics as taken **after** user creation
+    // Mark topics as taken
     if (topicOption1) {
       await Topic.findOneAndUpdate(
         { _id: topicOption1 }, 
@@ -99,16 +122,25 @@ export async function POST(req: Request) {
       );
     }
 
-    // Commit the transaction
     await session.commitTransaction();
     session.endSession();
 
-    return NextResponse.json(newUser, { status: 201 });
+    return NextResponse.json(
+      { message: 'Team details successfully saved! You can now proceed.' },
+      { status: 201 }
+    );
+
   } catch (error) {
     console.error('Error creating user:', error);
-    await session.abortTransaction(); // Rollback changes in case of failure
+    await session.abortTransaction();
     session.endSession();
-    return NextResponse.json({ message: 'Error creating user', error }, { status: 500 });
+    return NextResponse.json(
+      { 
+        message: 'An unexpected error occurred during registration. Please try again later.',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }
 

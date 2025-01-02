@@ -5,7 +5,7 @@ const dbConnect = async () => {
     return;
   }
 
-  await mongoose.connect(process.env.MONGODB_URI || '', {
+  await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://parthchoudhari3612:<db_password>@cluster0.ccucqrl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   });
 };
 
