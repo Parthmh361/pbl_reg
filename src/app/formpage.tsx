@@ -210,7 +210,7 @@ const MainPage = () => {
   
         <h1 className="login-heading">
           LOGIN
-          <p>Strictly use only Team leader's official email and PRN to login.</p>
+          <p>Strictly use only Team leaders official email and PRN to login.</p>
         </h1>
         <form onSubmit={handleLogin}>
           <div className="input-group">
