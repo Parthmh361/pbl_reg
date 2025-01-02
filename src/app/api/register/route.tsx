@@ -4,7 +4,6 @@ import User from '@/app/model/User';
 import Topic from '@/app/model/Topic';
 import Mentor from '@/app/model/Mentor';
 import mongoose from 'mongoose';
-
 interface TeamMember {
   prn: string;
 }
@@ -42,7 +41,7 @@ export async function POST(req: Request) {
     // Check if PRNs already exist
     const existingUsers = await User.find({
       prn: { $in: prnsToCheck }
-    }).session(session);
+    });
 
     if (existingUsers.length > 0) {
       const takenPrns = existingUsers.map(user => user.prn);
@@ -60,7 +59,7 @@ export async function POST(req: Request) {
     // Check topic availability
     const topics = await Topic.find({
       _id: { $in: [topicOption1, topicOption2].filter(Boolean) }
-    }).session(session).select('name isTaken');
+    }).select('name isTaken');
 
     const takenTopics = topics.filter(topic => topic.isTaken);
     if (takenTopics.length > 0) {
@@ -76,10 +75,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Fetch mentor names
+    // Fetch mentor names based on mentorOption1 and mentorOption2
     const mentors = await Mentor.find({
       _id: { $in: [mentorOption1, mentorOption2].filter(Boolean) }
-    }).session(session).select('name');
+    }).select('name');
 
     if (mentors.length === 0) {
       await session.abortTransaction();

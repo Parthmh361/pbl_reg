@@ -5,9 +5,7 @@ const dbConnect = async () => {
     return;
   }
 
-  await mongoose.connect(process.env.MONGODB_URI || "", {
-    serverSelectionTimeoutMS: 30000,  // 30 seconds timeout
-    socketTimeoutMS: 45000,  // Timeout for idle connections
+  await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://parthchoudhari3612:qsefthikp@cluster0.ccucqrl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
   });
 };
 
