@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-
+import './footer.css'
 interface TeamMember {
   name: string;
   email: string;
@@ -181,44 +181,68 @@ const MainPage = () => {
   return (
     <div className="container">
       {!isLoggedIn ? (
-        <div className="form-container">
-          <h1 className="login-heading">
-            LOGIN
-            <p>Strictly use only team leader email and PRN to login.</p>
-          </h1>
-          <form onSubmit={handleLogin}>
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="PRN"
-                value={prn}
-                onChange={(e) => setPrn(e.target.value)}
-                required
-              />
+      <div className="container">
+      <div className="form-container">
+        <h1 className="login-heading">
+          LOGIN
+          <p>Strictly use only team leader email and PRN to login.</p>
+        </h1>
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="PRN"
+              value={prn}
+              onChange={(e) => setPrn(e.target.value)}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          {errorMessage && (
+            <div className="error-message" style={{ color: 'red' }}>
+              {errorMessage}
             </div>
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            {errorMessage && (
-              <div className="error-message" style={{ color: 'red' }}>
-                {errorMessage}
-              </div>
-            )}
-            <div className="input-group">
-              <button type="submit" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-            </div>
-          
-          </form>
+          )}
+          <div className="input-group">
+            <button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </div>
+        </form>
+      </div>
+    
+      <div className="footer">
+        <p className="text-sm">
+          Design and Developed by{' '}
+          <a
+            href="https://www.linkedin.com/in/parth-choudhari-2073a0294"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-blue-500 hover:underline"
+          >
+            Parth Prashant Choudhari
+          </a>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
+        </p>
+        <p className="text-sm">
+          Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
+        </p>
+        <div className="text-xs mt-2">
+          © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
+        </div>
+      </div>
+      
         </div>
       ) : (
+        <>
+        
         <div className="form-container">
           <h1 className='team-details-heading'>Project Based Learning (PBL) Team Details</h1>
           <div className="input-group">
@@ -432,7 +456,26 @@ const MainPage = () => {
           </div>
           
         </div>
-        
+        <div className="footer">
+        <p className="text-sm">
+          Design and Developed by{' '}
+          <a
+            href="https://www.linkedin.com/in/parth-choudhari-2073a0294"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-blue-500 hover:underline"
+          >
+            Parth Prashant Choudhari
+          </a>, Web Developer, IEEE Student Branch (STB 60217705), SIT Nagpur
+        </p>
+        <p className="text-sm">
+          Under the guidance of <span className="font-semibold">Dr. Sudhanshu Maurya</span>, PBL Coordinator
+        </p>
+        <div className="text-xs mt-2">
+          © {new Date().getFullYear()} SIT Nagpur. All rights reserved.
+        </div>
+      </div>
+        </>
       )}
     </div>
   );

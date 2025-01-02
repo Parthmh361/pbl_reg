@@ -1,23 +1,42 @@
+/* Ensure the container fills the full viewport height */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;  /* Full viewport height */
+  justify-content: flex-start; /* Ensure the content starts from the top */
+  padding: 0; /* Remove any padding */
+  margin: 0; /* Remove any margin */
+}
+
+/* Ensure the form container is positioned correctly without space */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center the form elements */
+  flex-grow: 1; /* Allow the form container to take up remaining space */
+  margin-bottom: 0; /* Ensure no margin between the form and footer */
+}
+
+/* Footer has no space above or below it */
 .footer {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    background-color: #2d3748; /* Dark Gray */
-    color: white;
-    text-align: center;
-  }
-  
-  .footer .text-xs {
-    color: #cbd5e0; /* Light gray for copyright text */
-  }
-  
-  .footer .font-semibold {
-    font-weight: 600;
-  }
-  
-  .footer p {
-    margin-top: 0.5rem;
-  }
-  
+  text-align: center;
+  padding: 10px 0; /* Some padding for spacing within the footer */
+  margin: 0; /* No margin around footer */
+}
+
+.footer p {
+  margin: 0; /* Remove margins */
+}
+
+.footer a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer .text-sm {
+  font-size: 0.875rem;
+}
+
+.footer .text-xs {
+  font-size: 0.75rem;
+}

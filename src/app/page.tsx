@@ -9,7 +9,7 @@ const MaiPage = () => {
   return (
     <>
   <MainPage/>
-  <Footer/>
+  {/* <Footer/> */}
     </>
   );
 };
