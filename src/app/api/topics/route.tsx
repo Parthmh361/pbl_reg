@@ -3,7 +3,7 @@ import dbConnect from '../../lib/dbConnect';
 import Topic from '../../model/Topic';
 
 /**
- * @desc Get Topics by Mentor ID that are not taken (GET)
+ * @desc Get Topics by Mentor ID that are not taken and ensure unique topics (GET)
  * @route GET /api/topics?mentorId=ID
  */
 export async function GET(req: NextRequest) {
@@ -15,8 +15,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'mentorId query parameter is required' }, { status: 400 });
     }
 
-    // Fetch topics that are not taken
-    const topics = await Topic.find({ mentorId, isTaken: false });  // Adjusted to only fetch non-taken topics
+    // Fetch topics that are not taken and ensure unique topic names
+    const topics = await Topic.find({ mentorId, isTaken: false }).distinct('name');
+
     return NextResponse.json(topics, { status: 200 });
   } catch (error) {
     console.error('Error fetching topics:', error);

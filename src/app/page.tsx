@@ -66,26 +66,21 @@ const MainPage = () => {
     const fetchAvailableTopics = async (mentorId: string, setAvailableTopics: React.Dispatch<React.SetStateAction<string[]>>, setLoadingTopics: React.Dispatch<React.SetStateAction<boolean>>) => {
       setLoadingTopics(true);
       try {
-        // Add a condition to prevent duplicate API calls for the same mentor
-        if (mentorId === mentorOption1 || mentorId === mentorOption2) {
-          const response = await fetch(`/api/topics?mentorId=${mentorId}`);
-          const topics = await response.json();
-          console.log(topics);
-          if (Array.isArray(topics)) {
-            setAvailableTopics(topics.map((topic: { name: string }) => topic.name));
-          } else {
-            setAvailableTopics([]);
-          }
+        const response = await fetch(`/api/topics?mentorId=${mentorId}`);
+        const topics = await response.json();
+        if (Array.isArray(topics)) {
+          setAvailableTopics(topics.map((topic: { name: string }) => topic.name));
+        } else {
+          setAvailableTopics([]);
         }
       } catch (error) {
         console.error('Error fetching topics:', error);
         setAvailableTopics([]);
       } finally {
         setLoadingTopics(false);
-        
       }
     };
-  
+
     if (mentorOption1) {
       fetchAvailableTopics(mentorOption1, setAvailableTopicsForMentor1, setLoadingTopics1);
     }
@@ -93,7 +88,6 @@ const MainPage = () => {
       fetchAvailableTopics(mentorOption2, setAvailableTopicsForMentor2, setLoadingTopics2);
     }
   }, [mentorOption1, mentorOption2]);
-  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,7 +170,7 @@ const MainPage = () => {
       setLoading(false);
     }
   };
- 
+
   return (
     <div className="container">
       {!isLoggedIn ? (

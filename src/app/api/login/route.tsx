@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     // Find user in the database
-    const user = await LoginUser.findOne({ prn, email });
+    const user = await LoginUser.findOne({ prn, email }).exec();
 
     // If user doesn't exist
     if (!user) {
