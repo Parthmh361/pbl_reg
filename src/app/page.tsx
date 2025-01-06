@@ -1,5 +1,8 @@
 "use client";
-import MainPage from './formpage';
+
+import Closed from "./closed";
+
+// import MainPage from './formpage';
 
 
 
@@ -7,7 +10,8 @@ const MaiPage = () => {
  
   return (
     <>
-  <MainPage/>
+    <Closed/>
+  {/* <MainPage/> */}
   {/* <Footer/> */}
     </>
   );

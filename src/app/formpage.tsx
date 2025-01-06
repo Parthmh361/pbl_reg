@@ -205,8 +205,8 @@ const MainPage = () => {
     <div className="container">
       {!isLoggedIn ? (
       <div className="container">
-        <h1 className='headin'>PROJECT BASED LEARNING REGISTRATIONS CLOSED</h1>
-      {/* <div className="form-container">
+        <h1 className='headin'>PROJECT BASED LEARNING</h1>
+      <div className="form-container">
   
         <h1 className="login-heading">
           LOGIN
@@ -242,7 +242,7 @@ const MainPage = () => {
             </button>
           </div>
         </form>
-      </div> */}
+      </div>
     
       <div className="footer">
         <p className="text-sm">
